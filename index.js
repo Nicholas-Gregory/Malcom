@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const OAuth = require('oauth-1.0a');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
+const Status = require('./Status.js');
 
 mongoose.connect(process.env.MONGO_CONN_STRING);
 const db = mongoose.connection;
@@ -25,7 +26,10 @@ const oauth = new OAuth({
 });
 
 async function getRandomStatus() {
-    return 'test again';
+    const statuses = await Status.find();
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+    return status.text;
 }
 
 async function post() {
@@ -59,7 +63,4 @@ async function post() {
     return response;
 }
 
-db.once('open', () => {
-    console.log(apiKey, apiKeySecret, accessToken, accessTokenSecret)
-    post().then(response => console.log(response));
-});
+db.once('open', () => setInterval(() => post().then(response => console.log(response)), 1752000));
